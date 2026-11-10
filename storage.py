@@ -1,5 +1,6 @@
 import sqlite3
 from models import JobApplication
+from datetime import date
 
 
 def initialize_database(db_path: str = "applications.db") -> None:
@@ -53,3 +54,26 @@ def insert_application(
 
     connection.commit()
     connection.close()
+
+
+def get_all_applications(db_path: str = "applications.db") -> list[JobApplication]:
+    connection = sqlite3.connect(db_path)
+    rows = connection.execute("SELECT * FROM job_applications").fetchall()
+
+    connection.close()
+
+    applications = []
+
+    for row in rows:
+        application = JobApplication(
+            application_id=row[0],
+            company_name=row[1],
+            position_title=row[2],
+            applied_on=date.fromisoformat(row[3]),
+            status=row[4],
+            notes=row[5],
+        )
+
+        applications.append(application)
+
+    return applications
