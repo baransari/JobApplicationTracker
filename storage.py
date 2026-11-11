@@ -77,3 +77,21 @@ def get_all_applications(db_path: str = "applications.db") -> list[JobApplicatio
         applications.append(application)
 
     return applications
+
+
+def update_application_status(
+    application_id: str, new_status: str, db_path: str = "applications.db"
+) -> None:
+    connection = sqlite3.connect(db_path)
+
+    update_sql = """
+        UPDATE job_applications
+        SET status = ?
+        WHERE application_id = ?
+        
+    """
+
+    connection.execute(update_sql, (new_status, application_id))
+
+    connection.commit()
+    connection.close()
