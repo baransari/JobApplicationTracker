@@ -118,3 +118,20 @@ class TestStorage(unittest.TestCase):
             connection.close()
 
             self.assertEqual(row[0], "interview")
+
+    def test_update_application_status_rejects_invalid_status(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            db_path = f"{temp_dir}/test.db"
+            initialize_database(db_path)
+
+            application = JobApplication(
+                application_id="APP-TEST",
+                company_name="Example Corp",
+                position_title="Python Developer",
+                applied_on=date(2025, 10, 11),
+            )
+
+            insert_application(application, db_path)
+
+            with self.assertRaises(ValueError):
+                update_application_status("APP-TEST", "intervew", db_path)

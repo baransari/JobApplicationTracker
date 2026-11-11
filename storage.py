@@ -82,6 +82,12 @@ def get_all_applications(db_path: str = "applications.db") -> list[JobApplicatio
 def update_application_status(
     application_id: str, new_status: str, db_path: str = "applications.db"
 ) -> None:
+
+    allowed_statuses = {"applied", "interview", "offer", "rejected", "withdrawn"}
+
+    if new_status not in allowed_statuses:
+        raise ValueError("Lütfen geçerli bir durum giriniz!")
+    
     connection = sqlite3.connect(db_path)
 
     update_sql = """
