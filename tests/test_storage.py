@@ -135,3 +135,35 @@ class TestStorage(unittest.TestCase):
 
             with self.assertRaises(ValueError):
                 update_application_status("APP-TEST", "intervew", db_path)
+
+    def test_update_application_status_rejects_unknown_application_id(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            db_path = f"{temp_dir}/test.db"
+            initialize_database(db_path)
+
+            with self.assertRaises(ValueError):
+                update_application_status("MISSING", "interview", db_path)
+
+    def test_insert_application_rejects_duplicate_application_id(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            db_path = f"{temp_dir}/test.db"
+            initialize_database(db_path)
+
+            application1 = JobApplication(
+                application_id="APP-DUP",
+                company_name="Example Corp",
+                position_title="Python Developer",
+                applied_on=date(2025, 10, 11),
+            )
+
+            insert_application(application1, db_path)
+
+            application2 = JobApplication(
+                application_id="APP-DUP",
+                company_name="Example Corp-1",
+                position_title="JS Developer",
+                applied_on=date(2026, 10, 11),
+            )
+
+            with self.assertRaises(ValueError):
+                insert_application(application2, db_path)

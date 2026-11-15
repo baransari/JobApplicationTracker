@@ -39,18 +39,21 @@ def insert_application(
     VALUES (?, ?, ?, ?, ?, ?)
     
     """
-
-    connection.execute(
-        insert_sql,
-        (
-            application.application_id,
-            application.company_name,
-            application.position_title,
-            application.applied_on.isoformat(),
-            application.status,
-            application.notes,
-        ),
-    )
+    try:
+        connection.execute(
+            insert_sql,
+            (
+                application.application_id,
+                application.company_name,
+                application.position_title,
+                application.applied_on.isoformat(),
+                application.status,
+                application.notes,
+            ),
+        )
+    except sqlite3.IntegrityError as e:
+        connection.close()
+        raise ValueError("Bu başvuru kodu zaten kullanılıyor!") from e
 
     connection.commit()
     connection.close()
@@ -87,7 +90,7 @@ def update_application_status(
 
     if new_status not in allowed_statuses:
         raise ValueError("Lütfen geçerli bir durum giriniz!")
-    
+
     connection = sqlite3.connect(db_path)
 
     update_sql = """
@@ -97,7 +100,11 @@ def update_application_status(
         
     """
 
-    connection.execute(update_sql, (new_status, application_id))
+    cursor = connection.execute(update_sql, (new_status, application_id))
+    if cursor.rowcount == 0:
+        connection.close()
+
+        raise ValueError("Bu kodla eşleşen başvuru bulunamadı!")
 
     connection.commit()
     connection.close()

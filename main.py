@@ -43,7 +43,7 @@ def main() -> None:
             print("SİSTEMDEN ÇIKIŞ YAPILIYOR...")
             break
 
-        else:
+        elif choice not in {"1", "2", "3", "4"}:
             print("Hatalı sayı girişi yaptınız. Seçimleriniz 1-4 arası olmalıdır.")
 
 
